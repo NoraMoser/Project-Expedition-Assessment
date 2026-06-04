@@ -14,6 +14,17 @@ The app renders an empty table on first load until the seed endpoint is called �
 
 ## Section 2: Database & API
 
+The original GET endpoint imported `destinationData` directly from the seed file and returned it as-is. The database was never queried — the API looked like it was fetching live data but was just returning static hardcoded records. This is the core issue Section 2 asked us to fix.
+
+Replaced the hardcoded return with a real Drizzle query: `db.select().from(destinations)`. This hits the actual PostgreSQL database and returns live records.
+
+Added error handling around the query. The original had none — if the database was unavailable or the query failed, the app would crash with an unhandled error. Now it catches failures, logs them server-side, and returns a proper 500 response with a meaningful error message.
+
+**What I'd do with more time:**
+- Add server-side filtering via query params (e.g. `?search=peru`) so the API does the filtering rather than returning all records and filtering client-side
+- Add pagination so large datasets don't get returned in a single response
+- Add input validation on query params
+
 ## Section 3: User Interface
 
 The existing `page.tsx` had several issues I identified through code review and checking the browser console:
@@ -25,10 +36,10 @@ The existing `page.tsx` had several issues I identified through code review and 
 - Direct DOM manipulation via `document.getElementById("search-term").innerHTML` bypasses React's virtual DOM and is an XSS vector. Replaced with a controlled input using a `searchTerm` state variable.
 - `<thead>` was missing a `<tr>` wrapper around the `<th>` elements — invalid HTML per spec.
 - Missing `key` props on mapped `<tr>` and activity `<div>` elements, causing React warnings.
+- `useState([])` with no type argument caused TypeScript to infer `never[]`, producing type errors throughout the component. Fixed by adding a `Destination` interface and typing the state explicitly.
 
 **What I'd do with more time:**
 - Move filtering server-side via query params on the API rather than loading all records client-side
 - Add debounce to the search input to avoid filtering on every keystroke
 - Add loading and empty states
-- Add TypeScript types throughout
 - Add pagination for large datasets
