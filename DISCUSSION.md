@@ -12,18 +12,24 @@ One thing worth noting: the `migrate:up` script runs with plain Node, not throug
 
 The app renders an empty table on first load until the seed endpoint is called — this is expected behavior since the database starts empty. Running `POST /api/seed` populates the destinations and the UI updates on next load.
 
+Note on branch workflow: in a real team environment I would have kept strictly to branch-per-section. Due to time constraints I consolidated the work into a single branch.
+
 ## Section 2: Database & API
 
-The original GET endpoint imported `destinationData` directly from the seed file and returned it as-is. The database was never queried — the API looked like it was fetching live data but was just returning static hardcoded records. This is the core issue Section 2 asked us to fix.
+The original GET endpoint imported `destinationData` directly from the seed file and returned it as-is. The database was never queried — the API looked like it was fetching live data but was just returning static hardcoded records.
 
-Replaced the hardcoded return with a real Drizzle query: `db.select().from(destinations)`. This hits the actual PostgreSQL database and returns live records.
+Replaced the hardcoded return with a real Drizzle query using `.select().from(destinations)`. This hits the actual PostgreSQL database and returns live records.
 
-Added error handling around the query. The original had none — if the database was unavailable or the query failed, the app would crash with an unhandled error. Now it catches failures, logs them server-side, and returns a proper 500 response with a meaningful error message.
+Added pagination via `page` and `limit` query params. The API now accepts `?page=1&limit=5`, uses Drizzle's `.limit()` and `.offset()` to fetch the right slice, and runs a parallel count query via `Promise.all` to return total count and total pages alongside the data. This avoids loading the full dataset on every request.
+
+Also fixed `src/db/index.ts`. The original used a fallback object `{ select: () => ({ from: () => [] }) }` when no `DATABASE_URL` was set, which caused TypeScript to union the return type with the real Drizzle instance. This meant the compiler couldn't guarantee `.limit()` and `.offset()` existed on `db`, producing type errors. Replaced the fallback with an early `throw` — if `DATABASE_URL` is missing the app fails fast with a clear error rather than silently returning empty data. This is better behavior in both development and production.
+
+Added error handling around all queries. The original had none — if the database was unavailable the app would crash with an unhandled error. Now it catches failures, logs them server-side, and returns a proper 500 response.
 
 **What I'd do with more time:**
-- Add server-side filtering via query params (e.g. `?search=peru`) so the API does the filtering rather than returning all records and filtering client-side
-- Add pagination so large datasets don't get returned in a single response
+- Add server-side search filtering via a `?search=` query param so filtering happens in the database rather than client-side
 - Add input validation on query params
+- Add sorting support
 
 ## Section 3: User Interface
 
@@ -36,10 +42,19 @@ The existing `page.tsx` had several issues I identified through code review and 
 - Direct DOM manipulation via `document.getElementById("search-term").innerHTML` bypasses React's virtual DOM and is an XSS vector. Replaced with a controlled input using a `searchTerm` state variable.
 - `<thead>` was missing a `<tr>` wrapper around the `<th>` elements — invalid HTML per spec.
 - Missing `key` props on mapped `<tr>` and activity `<div>` elements, causing React warnings.
-- `useState([])` with no type argument caused TypeScript to infer `never[]`, producing type errors throughout the component. Fixed by adding a `Destination` interface and typing the state explicitly.
+- `useState([])` with no type argument caused TypeScript to infer `never[]`, producing type errors throughout the component. Fixed by adding a `Destination` interface and typing both state declarations explicitly.
+
+**Improvements added:**
+- Loading state — shows "Loading destinations..." while the fetch is in flight.
+- Error state — if the API call fails, a clear error message is shown rather than silently failing.
+- Empty state — if the search returns no matches, a message shows "No destinations found for X" rather than an empty table.
+- Rewrote the fetch logic using async/await with try/catch instead of nested `.then()` calls. The original nested approach made error handling difficult — errors thrown inside an inner `.then()` would silently disappear. The async/await version uses a single `catch` block to handle any failure and a `finally` block to always clear the loading state. Note that `useEffect` callbacks cannot be async directly in React, so the async logic lives in an inner function that is called immediately.
+- Typed the `onChange` handler with `React.ChangeEvent<HTMLInputElement>` to remove the implicit `any`.
+- Added pagination controls — prev/next buttons that update the current page, with the page number and total displayed between them. Page is stored in state and passed as a query param to the API (`?page=N&limit=5`), so each page change triggers a real re-fetch from the database rather than slicing client-side data. The `useEffect` has `page` in its dependency array so it fires automatically on change. Pagination controls are hidden during search since search filters the current page client-side. Prev and next buttons are disabled at the boundaries.
+- Added Tailwind styling throughout. The design uses a warm stone palette with a clean header, color-coded cost level badges (green for budget, amber for moderate, rose for luxury), activity pill tags, alternating row colors, and hover states. Annual visitors are formatted with `.toLocaleString()` for readability.
 
 **What I'd do with more time:**
-- Move filtering server-side via query params on the API rather than loading all records client-side
-- Add debounce to the search input to avoid filtering on every keystroke
-- Add loading and empty states
-- Add pagination for large datasets
+- Move search filtering server-side via query params on the API
+- Add debounce to the search input
+- Add sorting by column
+- Add lazy loading for images if destination photos were added
