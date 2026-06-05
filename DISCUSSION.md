@@ -33,6 +33,9 @@ Added error handling around all queries. The original had none — if the databa
 
 ## Section 3: User Interface
 
+Added SEO metadata via Next.js `Metadata` export in `layout.tsx` — title and description that will appear in search results and browser tabs. This lives in `layout.tsx` rather than `page.tsx` because metadata exports are only supported in server components, and `page.tsx` uses `"use client"` for its interactive state. The `<h1>` was already in place (important for SEO), and the `<Image>` components include descriptive `alt` text on every destination photo, which helps both SEO and accessibility.
+
+
 The existing `page.tsx` had several issues I identified through code review and checking the browser console:
 
 **Bugs fixed:**
@@ -57,4 +60,19 @@ The existing `page.tsx` had several issues I identified through code review and 
 - Move search filtering server-side via query params on the API
 - Add debounce to the search input
 - Add sorting by column
-- Add lazy loading for images if destination photos were added
+- Added lazy loading for destination images using Next.js `<Image>` with `loading="lazy"`. Images are fetched from Unsplash via the `source.unsplash.com` API using destination-specific search terms. Added `imageUrl` as a nullable text column to the schema and ran a new migration. Next.js requires external image domains to be whitelisted in `next.config.js` — added `source.unsplash.com` to `remotePatterns`. The image cell falls back to a neutral placeholder div when `imageUrl` is null, so the layout never breaks if a URL is missing.
+
+**Accessibility improvements:**
+- Added a visually hidden `<label>` for the search input via `sr-only` — placeholders disappear on type and aren't reliably announced by screen readers, so a proper label is important.
+- Added `aria-label` to the Clear, Previous, and Next buttons for screen reader clarity.
+- Added `role="status"` and `aria-live="polite"` to the loading and empty states so screen readers announce changes without interrupting the user.
+- Added `role="alert"` to the error state so it's announced immediately.
+- Added `scope="col"` to all `<th>` elements so screen readers understand they're column headers.
+- Added `aria-label` to the table and wrapped pagination in a `<nav>` with `aria-label="Pagination"`.
+- Added `aria-hidden="true"` to the placeholder div shown when no image is available — it's decorative and shouldn't be announced.
+- Added `aria-current="page"` to the page indicator.
+- Fixed `costLevelColor` to handle "premium" — it was falling through to the default gray. Added a purple badge for premium destinations.
+- Accessibility was a deliberate consideration throughout, not an afterthought — informed by building explorAble, a React Native app focused on accessible outdoor trail information.
+
+**Skeleton loader:**
+Replaced the plain "Loading destinations..." text with a skeleton loader that mirrors the table structure — each column shows an animated pulsing placeholder at the correct size and position. The table header stays visible during loading so the layout doesn't shift when data arrives. The table uses `aria-busy={isLoading}` to communicate loading state to screen readers. The skeleton renders exactly `LIMIT` rows so the layout matches what will appear once data loads.

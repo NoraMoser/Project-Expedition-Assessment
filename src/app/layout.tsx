@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PE Candidate Assignment",
-  description: "Show us what you got",
+  title: "Destination Explorer | Project Expedition",
+  description: "Browse and discover travel destinations worldwide. Filter by region, cost level, and activities.",
 };
 
 export default function RootLayout({

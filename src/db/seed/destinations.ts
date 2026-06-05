@@ -29,7 +29,6 @@ const activities = [
 const randomActivity = () => {
   const random1 = Math.floor(Math.random() * 24);
   const random2 = Math.floor(Math.random() * (24 - random1)) + random1 + 1;
-
   return [random1, random2] as const;
 };
 
@@ -42,6 +41,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 150,
     annualVisitors: 1500000,
+    imageUrl: "https://picsum.photos/seed/machupicchu/400/300",
   },
   {
     name: "Santorini",
@@ -51,6 +51,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 250,
     annualVisitors: 2000000,
+    imageUrl: "https://picsum.photos/seed/santorini/400/300",
   },
   {
     name: "Kyoto",
@@ -60,6 +61,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 180,
     annualVisitors: 5300000,
+    imageUrl: "https://picsum.photos/seed/kyoto/400/300",
   },
   {
     name: "Serengeti National Park",
@@ -69,6 +71,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 300,
     annualVisitors: 350000,
+    imageUrl: "https://picsum.photos/seed/serengeti/400/300",
   },
   {
     name: "Queenstown",
@@ -78,6 +81,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 200,
     annualVisitors: 3000000,
+    imageUrl: "https://picsum.photos/seed/queenstown/400/300",
   },
   {
     name: "Reykjavik",
@@ -87,6 +91,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 280,
     annualVisitors: 2300000,
+    imageUrl: "https://picsum.photos/seed/reykjavik/400/300",
   },
   {
     name: "Cusco",
@@ -96,6 +101,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 60,
     annualVisitors: 2700000,
+    imageUrl: "https://picsum.photos/seed/cusco/400/300",
   },
   {
     name: "Bali",
@@ -105,6 +111,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 70,
     annualVisitors: 6200000,
+    imageUrl: "https://picsum.photos/seed/bali/400/300",
   },
   {
     name: "Banff National Park",
@@ -114,6 +121,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 180,
     annualVisitors: 4000000,
+    imageUrl: "https://picsum.photos/seed/banff/400/300",
   },
   {
     name: "Patagonia",
@@ -123,6 +131,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 220,
     annualVisitors: 400000,
+    imageUrl: "https://picsum.photos/seed/patagonia/400/300",
   },
   {
     name: "Marrakech",
@@ -132,6 +141,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 55,
     annualVisitors: 3000000,
+    imageUrl: "https://picsum.photos/seed/marrakech/400/300",
   },
   {
     name: "Dubrovnik",
@@ -141,6 +151,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 160,
     annualVisitors: 1400000,
+    imageUrl: "https://picsum.photos/seed/dubrovnik/400/300",
   },
   {
     name: "Cancun",
@@ -150,6 +161,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 140,
     annualVisitors: 8000000,
+    imageUrl: "https://picsum.photos/seed/cancun/400/300",
   },
   {
     name: "Phuket",
@@ -159,6 +171,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 80,
     annualVisitors: 9500000,
+    imageUrl: "https://picsum.photos/seed/phuket/400/300",
   },
   {
     name: "Swiss Alps",
@@ -168,6 +181,7 @@ const destinationData = [
     activities: activities.slice(...randomActivity()),
     averageDailyBudget: 400,
     annualVisitors: 1200000,
+    imageUrl: "https://picsum.photos/seed/swissalps/400/300",
   },
 ];
 

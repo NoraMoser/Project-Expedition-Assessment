@@ -19,6 +19,7 @@ const destinations = pgTable("destinations", {
   averageDailyBudget: integer("average_daily_budget").notNull(),
   annualVisitors: bigint("annual_visitors", { mode: "number" }).notNull(),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
+  imageUrl: text("image_url"),
 });
 
 export { destinations };
