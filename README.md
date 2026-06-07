@@ -96,3 +96,17 @@ Then seed the database (with the dev server running):
 ```bash
 curl -X POST http://localhost:3000/api/seed
 ```
+
+## Running Tests
+
+```bash
+npm test
+```
+
+To run with coverage:
+
+```bash
+npx jest --coverage
+```
+
+Tests are in `src/_tests_/` — `route.test.ts` for the API endpoint and `page.test.tsx` for the UI component.

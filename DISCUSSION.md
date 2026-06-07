@@ -76,3 +76,15 @@ The existing `page.tsx` had several issues I identified through code review and 
 
 **Skeleton loader:**
 Replaced the plain "Loading destinations..." text with a skeleton loader that mirrors the table structure — each column shows an animated pulsing placeholder at the correct size and position. The table header stays visible during loading so the layout doesn't shift when data arrives. The table uses `aria-busy={isLoading}` to communicate loading state to screen readers. The skeleton renders exactly `LIMIT` rows so the layout matches what will appear once data loads.
+
+## Testing
+
+Added Jest with React Testing Library for both unit and component tests.
+
+**API route tests (`route.test.ts`)** cover the GET endpoint in isolation — the database is fully mocked so tests never hit a real connection. Five tests: happy path with pagination metadata, default param behavior, limit clamping at 50, page clamping at minimum 1, and a 500 error when the database throws. The `Response` and `Request` APIs aren't available in the jsdom test environment by default, so `whatwg-fetch` was added as a polyfill for `Request`, and `global.Response` was shimmed with a plain object that returns the status and data the tests need to assert on.
+
+**Component tests (`page.test.tsx`)** render the `Home` component with a mocked `fetch` and assert on user-facing behavior: skeleton rows appear before data loads, destinations render after fetch resolves, search filtering works case-insensitively, empty state appears when no results match, the clear button restores all results, and the error state renders when fetch fails. `next/image` is mocked since jsdom can't render it.
+
+Coverage came out at 100% for the API route and ~85% for the page component — the uncovered lines are mostly pagination edge cases that would require additional test scenarios.
+
+One note on setup: `ts-jest` needed explicit JSX configuration (`jsx: "react-jsx"`) to handle `.tsx` files, and `@testing-library/jest-dom` types needed to be added to `tsconfig.json` under `compilerOptions.types` to resolve the `toBeInTheDocument` matcher type errors.
