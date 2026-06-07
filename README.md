@@ -64,3 +64,49 @@ Please send your submission to:
 - steve@projectexpedition.com
 - eunice@projectexpedition.com
 
+## Development Setup
+
+### Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your database connection string:
+
+```bash
+cp .env.example .env.local
+```
+
+For local development, spin up PostgreSQL with Docker:
+
+```bash
+docker compose up -d
+```
+
+Or use a hosted provider like [Neon](https://neon.tech) for a free cloud database.
+
+### Database Setup
+
+The migration script runs with plain Node and does not pick up `.env.local` automatically, so pass the variable inline:
+
+```bash
+DATABASE_URL="your-connection-string" npm run generate
+DATABASE_URL="your-connection-string" npm run migrate:up
+```
+
+Then seed the database (with the dev server running):
+
+```bash
+curl -X POST http://localhost:3000/api/seed
+```
+
+## Running Tests
+
+```bash
+npm test
+```
+
+To run with coverage:
+
+```bash
+npx jest --coverage
+```
+
+Tests are in `src/_tests_/` — `route.test.ts` for the API endpoint and `page.test.tsx` for the UI component.
